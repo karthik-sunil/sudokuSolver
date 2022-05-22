@@ -21,35 +21,36 @@ def grid_transpose(_grid):
         _transposed_grid.append(_transp_list)
     return _transposed_grid
 
-
+@time_this
 def check_grid_validity(_grid):
+    from itertools import chain
     # row check
     for i in range(1, 10):
         for g in _grid:
             if g.count(i) > 1:
                 pass
-                #return False
+                return False
 
     # column check
     _transposed_grid = grid_transpose(_grid)
     for i in range(1, 10):
         for g in _transposed_grid:
             if g.count(i) > 1:
-                pass
-                #return False
+                return False
 
     # block check
     # try to implement block check
     # check itertools
-    _block_list = []*9
-    for i in range(len(_grid)):
-        for j in range(len(_grid)):
-            print(3*(i//3))
-            print(3*(j%3))
+    _square_list = []
+    for i in range(0,len(_grid),3):
+        for j in range(0,len(_grid),3):
+            _square_list.append(list(chain.from_iterable([_row[j:j+3] for _row in _grid[i:i+3]])))
+    for i in range(1,10):
+        for _square in _square_list:
+            if _square.count(i) > 1:
+                return False
 
-            #_block_list[(i + j) % 9].append(_grid[i][j])
-    print(_block_list)
-
+    return True
 
 @time_this
 def grid_print(_grid):
@@ -147,6 +148,7 @@ def __main__():
     solver(board)
     print("_" * 50)
     grid_print(board)
+    print(check_grid_validity(board))
 
 
 __main__()
