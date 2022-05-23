@@ -1,3 +1,7 @@
+from numba import jit
+import numpy as np
+
+
 # decorator for timing
 def time_this(original_function):
     import time
@@ -13,21 +17,17 @@ def time_this(original_function):
 
 
 def grid_transpose(_grid):
-    _transposed_grid = []
-    for i in range(len(_grid)):
-        _transp_list = []
-        for g in _grid:
-            _transp_list.append(g[i - 1])
-        _transposed_grid.append(_transp_list)
+    _transposed_grid = np.transpose(_grid)
     return _transposed_grid
 
-@time_this
+
+# @time_this
 def check_grid_validity(_grid):
     from itertools import chain
     # row check
     for i in range(1, 10):
         for g in _grid:
-            if g.count(i) > 1:
+            if np.count_nonzero(g == i) > 1:
                 pass
                 return False
 
@@ -35,24 +35,24 @@ def check_grid_validity(_grid):
     _transposed_grid = grid_transpose(_grid)
     for i in range(1, 10):
         for g in _transposed_grid:
-            if g.count(i) > 1:
+            if np.count_nonzero(g == i) > 1:
                 return False
 
     # block check
-    # try to implement block check
     # check itertools
     _square_list = []
-    for i in range(0,len(_grid),3):
-        for j in range(0,len(_grid),3):
-            _square_list.append(list(chain.from_iterable([_row[j:j+3] for _row in _grid[i:i+3]])))
-    for i in range(1,10):
+    for i in range(0, len(_grid), 3):
+        for j in range(0, len(_grid), 3):
+            _square_list.append(list(chain.from_iterable([_row[j:j + 3] for _row in _grid[i:i + 3]])))
+    for i in range(1, 10):
         for _square in _square_list:
             if _square.count(i) > 1:
                 return False
 
     return True
 
-@time_this
+
+# @time_this
 def grid_print(_grid):
     for _line in _grid:
         for i, _val in enumerate(_line):
@@ -96,7 +96,7 @@ def solver(_grid):
 #    (0,0) -> (2,2) -> (0,0)
 #    (3,0) -> (3,2) -> (1,0)
 # 4. If all checks pass, return True.
-
+@jit
 def valid_entry(_grid, _num, _pos):
     _column = []
     _row, _col = _pos[0], _pos[1]
@@ -124,8 +124,8 @@ def valid_entry(_grid, _num, _pos):
 # find_empty returns the first 0 it encounters
 
 def find_empty(_grid):
-    for i,row in enumerate(_grid):
-        for j,val in enumerate(row):
+    for i, row in enumerate(_grid):
+        for j, val in enumerate(row):
             if row[j] == 0:
                 return i, j
     return None
@@ -133,22 +133,22 @@ def find_empty(_grid):
 
 @time_this
 def __main__():
-    board = [[2,9,0,0,0,0,0,7,0],
-       [3,0,6,0,0,8,4,0,0],
-       [8,0,0,0,4,0,0,0,2],
-       [0,2,0,0,3,1,0,0,7],
-       [0,0,0,0,8,0,0,0,0],
-       [1,0,0,9,5,0,0,6,0],
-       [7,0,0,0,9,0,0,0,1],
-       [0,0,1,2,0,0,3,0,6],
-       [0,3,0,0,0,0,0,5,9]]
-    print(check_grid_validity(board))
+    board = np.array([[2, 9, 0, 0, 0, 0, 0, 7, 0],
+                      [3, 0, 6, 0, 0, 8, 4, 0, 0],
+                      [8, 0, 0, 0, 4, 0, 0, 0, 2],
+                      [0, 2, 0, 0, 3, 1, 0, 0, 7],
+                      [0, 0, 0, 0, 8, 0, 0, 0, 0],
+                      [1, 0, 0, 9, 5, 0, 0, 6, 0],
+                      [7, 0, 0, 0, 9, 0, 0, 0, 1],
+                      [0, 0, 1, 2, 0, 0, 3, 0, 6],
+                      [0, 3, 0, 0, 0, 0, 0, 5, 9]])
+    # print(check_grid_validity(board))
     grid_print(board)
     print("_" * 50)
     solver(board)
     print("_" * 50)
     grid_print(board)
-    print(check_grid_validity(board))
+    # print(check_grid_validity(board))
 
 
 __main__()
